@@ -99,7 +99,7 @@ class SupabaseClient {
 
       // En producción, verificar token en URL o localStorage
       const urlParams = new URLSearchParams(window.location.search);
-      const accessToken = urlParams.get('access_token') || localStorage.getItem('supabase_access_token');
+      const accessToken = new URLSearchParams(window.location.hash.substring(1)).get('access_token') || localStorage.getItem('supabase_access_token');
       
       if (accessToken) {
         this.accessToken = accessToken;
