@@ -85,7 +85,7 @@ export default function Home() {
         {tasks.map((task) => (
           <li
             key={task.id}
-            className={\`flex justify-between items-center p-2 border-b \${task.done ? "line-through text-gray-500" : ""}\`}
+            className={`flex justify-between items-center p-2 border-b ${task.done ? "line-through text-gray-500" : ""}`}
           >
             <span onClick={() => toggleTask(task.id, task.done)} className="cursor-pointer">
               {task.text}
