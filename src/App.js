@@ -3,7 +3,9 @@ import { Plus, Trash2, Check, LogOut, User } from 'lucide-react';
 
 // Configuración de Supabase - REEMPLAZÁ CON TUS CREDENCIALES
 const SUPABASE_URL = 'https://hlazeplscqofnbxytuzw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsYXplcGxzY3FvZm5ieHl0dXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNDc1MjQsImV4cCI6MjA2OTgyMzUyNH0.yFotBAl27v1_Nqtbx35Q6ZxzIfpXxcI7U0xqmEZaEkM';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJz
+dXBhYmFzZSIsInJlZiI6ImhsYXplcGxzY3FvZm5ieHl0dXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3
+NTQyNDc1MjQsImV4cCI6MjA2OTgyMzUyNH0.yFotBAl27v1_Nqtbx35Q6ZxzIfpXxcI7U0xqmEZaEkM';
 
 // Cliente de Supabase usando fetch directo
 class SupabaseClient {
@@ -16,7 +18,7 @@ class SupabaseClient {
   async request(endpoint, options = {}) {
     const headers = {
       'Content-Type': 'application/json',
-      'apikey': this.key,
+      apikey: this.key,
       ...options.headers
     };
 
@@ -39,10 +41,10 @@ class SupabaseClient {
       if (SUPABASE_URL === 'TU_SUPABASE_URL_AQUI') {
         return { error: null };
       }
-      
+
       const redirectTo = options.options?.redirectTo || window.location.origin;
       const provider = options.provider;
-      
+
       window.location.href = `${this.url}/auth/v1/authorize?provider=${provider}&redirect_to=${redirectTo}`;
       return { error: null };
     },
@@ -55,10 +57,10 @@ class SupabaseClient {
       const result = await this.request('/auth/v1/logout', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`
+          Authorization: `Bearer ${this.accessToken}`
         }
       });
-      
+
       this.accessToken = null;
       localStorage.removeItem('supabase_access_token');
       return { error: result.error || null };
@@ -75,7 +77,7 @@ class SupabaseClient {
 
       const result = await this.request('/auth/v1/user', {
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`
+          Authorization: `Bearer ${this.accessToken}`
         }
       });
 
@@ -99,13 +101,13 @@ class SupabaseClient {
 
       // En producción, verificar token en URL o localStorage
       const urlParams = new URLSearchParams(window.location.search);
-      const accessToken = new URLSearchParams(window.location.hash.substring(1)).get('access_token') || localStorage.getItem('supabase_access_token');
-      
+      const accessToken = urlParams.get('access_token') || localStorage.getItem('supabase_access_token');
+
       if (accessToken) {
         this.accessToken = accessToken;
         localStorage.setItem('supabase_access_token', accessToken);
-        
-        supabase.auth.getUser().then(({ data: { user } }) => {
+
+        this.getUser().then(({ data: { user } }) => {
           if (user) {
             callback('SIGNED_IN', { user });
           } else {
@@ -127,20 +129,20 @@ class SupabaseClient {
           order: (column, options = {}) => {
             if (SUPABASE_URL === 'TU_SUPABASE_URL_AQUI') {
               // Demo mode
-              return Promise.resolve({ 
-                data: JSON.parse(localStorage.getItem('demo-tasks') || '[]'), 
-                error: null 
+              return Promise.resolve({
+                data: JSON.parse(localStorage.getItem('demo-tasks') || '[]'),
+                error: null
               });
             }
 
             const ascending = options.ascending !== false;
             const endpoint = `/rest/v1/${table}?select=${columns}&${column}=eq.${value}&order=${column}.${ascending ? 'asc' : 'desc'}`;
-            
+
             return this.request(endpoint, {
               headers: {
-                'Authorization': `Bearer ${this.accessToken}`
+                Authorization: `Bearer ${this.accessToken}`
               }
-            }).then(data => ({ data, error: null }));
+            }).then((data) => ({ data, error: null }));
           }
         })
       }),
@@ -159,8 +161,8 @@ class SupabaseClient {
           method: 'POST',
           body: JSON.stringify(data),
           headers: {
-            'Authorization': `Bearer ${this.accessToken}`,
-            'Prefer': 'return=representation'
+            Authorization: `Bearer ${this.accessToken}`,
+            Prefer: 'return=representation'
           }
         });
 
@@ -172,9 +174,7 @@ class SupabaseClient {
           if (SUPABASE_URL === 'TU_SUPABASE_URL_AQUI') {
             // Demo mode
             const tasks = JSON.parse(localStorage.getItem('demo-tasks') || '[]');
-            const updatedTasks = tasks.map(task => 
-              task.id === value ? { ...task, ...updates } : task
-            );
+            const updatedTasks = tasks.map((task) => (task.id === value ? { ...task, ...updates } : task));
             localStorage.setItem('demo-tasks', JSON.stringify(updatedTasks));
             return { error: null };
           }
@@ -183,7 +183,7 @@ class SupabaseClient {
             method: 'PATCH',
             body: JSON.stringify(updates),
             headers: {
-              'Authorization': `Bearer ${this.accessToken}`
+              Authorization: `Bearer ${this.accessToken}`
             }
           });
 
@@ -196,7 +196,7 @@ class SupabaseClient {
           if (SUPABASE_URL === 'TU_SUPABASE_URL_AQUI') {
             // Demo mode
             const tasks = JSON.parse(localStorage.getItem('demo-tasks') || '[]');
-            const filteredTasks = tasks.filter(task => task.id !== value);
+            const filteredTasks = tasks.filter((task) => task.id !== value);
             localStorage.setItem('demo-tasks', JSON.stringify(filteredTasks));
             return { error: null };
           }
@@ -204,7 +204,7 @@ class SupabaseClient {
           const result = await this.request(`/rest/v1/${table}?${column}=eq.${value}`, {
             method: 'DELETE',
             headers: {
-              'Authorization': `Bearer ${this.accessToken}`
+              Authorization: `Bearer ${this.accessToken}`
             }
           });
 
@@ -229,24 +229,26 @@ export default function ChecklistApp() {
     checkUser();
 
     // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          loadTasks(session.user.id);
-        } else {
-          setUser(null);
-          setTasks([]);
-        }
-        setLoading(false);
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        loadTasks(session.user.id);
+      } else {
+        setUser(null);
+        setTasks([]);
       }
-    );
+      setLoading(false);
+    });
 
     return () => subscription?.unsubscribe();
   }, []);
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
     if (user) {
       setUser(user);
       loadTasks(user.id);
@@ -275,7 +277,7 @@ export default function ChecklistApp() {
         redirectTo: window.location.origin
       }
     });
-    
+
     if (error) console.error('Error signing in:', error);
   };
 
@@ -294,9 +296,7 @@ export default function ChecklistApp() {
       created_at: new Date().toISOString()
     };
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([newTask]);
+    const { data, error } = await supabase.from('tasks').insert([newTask]);
 
     if (error) {
       console.error('Error adding task:', error);
@@ -307,20 +307,17 @@ export default function ChecklistApp() {
   };
 
   const deleteTask = async (id) => {
-    const { error } = await supabase
-      .from('tasks')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
 
     if (error) {
       console.error('Error deleting task:', error);
     } else {
-      setTasks(tasks.filter(task => task.id !== id));
+      setTasks(tasks.filter((task) => task.id !== id));
     }
   };
 
   const toggleTask = async (id) => {
-    const task = tasks.find(t => t.id === id);
+    const task = tasks.find((t) => t.id === id);
     const { error } = await supabase
       .from('tasks')
       .update({ completed: !task.completed })
@@ -329,9 +326,9 @@ export default function ChecklistApp() {
     if (error) {
       console.error('Error updating task:', error);
     } else {
-      setTasks(tasks.map(t => 
-        t.id === id ? { ...t, completed: !t.completed } : t
-      ));
+      setTasks(
+        tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      );
     }
   };
 
@@ -341,10 +338,10 @@ export default function ChecklistApp() {
     }
   };
 
-  const completedCount = tasks.filter(task => task.completed).length;
+  const completedCount = tasks.filter((task) => task.completed).length;
   const totalTasks = tasks.length;
 
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = tasks.filter((task) => {
     if (filter === 'active') return !task.completed;
     if (filter === 'completed') return task.completed;
     return true;
@@ -365,30 +362,40 @@ export default function ChecklistApp() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="text-6xl mb-6">📝</div>
+          <div className="text-6xl mb-6"></div>
           <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Checklist</h1>
           <p className="text-gray-600 mb-8">
-            Organizá tus tareas desde cualquier dispositivo. 
-            Iniciá sesión con Google para sincronizar todo.
+            Organizá tus tareas desde cualquier dispositivo. Iniciá sesión con Google para sincronizar todo.
           </p>
-          
+
           <button
             onClick={signInWithGoogle}
             className="w-full bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-sm hover:shadow-md"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              <path
+                fill="#4285f4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34a853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#fbbc05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              />
+              <path
+                fill="#ea4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
             </svg>
             Continuar con Google
           </button>
-          
+
           <div className="mt-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
             <p className="text-sm text-yellow-800">
-              <strong>Demo Mode:</strong> Esta versión funciona sin Supabase usando localStorage. 
-              Para conectar con Supabase real, configurá las credenciales arriba del código.
+              <strong>Demo Mode:</strong> Esta versión funciona sin Supabase usando localStorage. Para conectar con Supabase real, configurá las credenciales arriba del código.
             </p>
           </div>
         </div>
@@ -423,7 +430,7 @@ export default function ChecklistApp() {
               {completedCount} de {totalTasks} completadas
             </span>
             <div className="w-full bg-indigo-200 rounded-full h-2 mt-2">
-              <div 
+              <div
                 className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0}%` }}
               ></div>
@@ -488,7 +495,7 @@ export default function ChecklistApp() {
           {filteredTasks.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-400 text-6xl mb-4">
-                {filter === 'all' ? '📝' : filter === 'active' ? '⏳' : '✅'}
+                {filter === 'all' ? '' : filter === 'active' ? '⏳' : '✅'}
               </div>
               <p className="text-gray-500">
                 {filter === 'all' && 'No hay tareas aún'}
@@ -521,7 +528,7 @@ export default function ChecklistApp() {
                 >
                   {task.completed && <Check size={14} />}
                 </button>
-                
+
                 <span
                   className={`flex-1 transition-all duration-200 ${
                     task.completed
@@ -531,7 +538,7 @@ export default function ChecklistApp() {
                 >
                   {task.text}
                 </span>
-                
+
                 <button
                   onClick={() => deleteTask(task.id)}
                   className="text-red-400 hover:text-red-600 p-1 transition-colors duration-200"
@@ -549,7 +556,7 @@ export default function ChecklistApp() {
             <div className="flex gap-2 text-sm">
               <button
                 onClick={async () => {
-                  const completedTasks = tasks.filter(task => task.completed);
+                  const completedTasks = tasks.filter((task) => task.completed);
                   for (const task of completedTasks) {
                     await deleteTask(task.id);
                   }
