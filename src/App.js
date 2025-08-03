@@ -98,13 +98,22 @@ class SupabaseClient {
       }
 
       // En producción, verificar token en URL o localStorage
-      const urlParams = new URLSearchParams(window.location.search);
-      const accessToken = urlParams.get('access_token') || localStorage.getItem('supabase_access_token');
-      
+      const searchParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken =
+        hashParams.get('access_token') ||
+        searchParams.get('access_token') ||
+        localStorage.getItem('supabase_access_token');
+
       if (accessToken) {
         this.accessToken = accessToken;
         localStorage.setItem('supabase_access_token', accessToken);
-        
+
+        // Limpiar fragmento de la URL para mejorar seguridad
+        if (window.location.hash) {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+
         this.getUser().then(({ data: { user } }) => {
           if (user) {
             callback('SIGNED_IN', { user });
