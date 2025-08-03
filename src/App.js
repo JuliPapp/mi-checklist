@@ -105,7 +105,7 @@ class SupabaseClient {
         this.accessToken = accessToken;
         localStorage.setItem('supabase_access_token', accessToken);
         
-        this.getUser().then(({ data: { user } }) => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
           if (user) {
             callback('SIGNED_IN', { user });
           } else {
